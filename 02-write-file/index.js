@@ -3,7 +3,7 @@ const fs = require('fs');
 const filePath = __dirname + '/text.txt';
 fs.writeFile(filePath, '', err => {
   if (err) throw err;
-  /* process.stdout.write('File "text.txt" created!\n'); */
+  process.stdout.write('File "text.txt" has been added!\n');
 });
 const readline = require('readline');
 const rl = readline.createInterface({
@@ -21,7 +21,7 @@ const enterYouText = (promptText, isNew) => {
     } else {
       fs.appendFile(filePath, textStarting + userInput, err => {
         if (err) throw err;
-        enterYouText(userInput + ' added!\nYou can enter your text again or type "exit" (press "ctrl + c") to quit:\n');
+        enterYouText(''/* userInput + ' added!\nYou can enter your text again or type "exit" (press "ctrl + c") to quit:\n' */);
       });
     }
   });
@@ -29,5 +29,7 @@ const enterYouText = (promptText, isNew) => {
 rl.on('close', () => {
   if (closeText) process.stdout.write('You typed "exit". Goodbye!\n');
   else process.stdout.write('You pressed "ctrl + c". Goodbye!\n');
-})
-enterYouText('Enter your text or type "exit" (press "ctrl + c") to quit:\n', 'new');
+});
+setTimeout(() => {
+  enterYouText('Enter your text or type "exit" (press "ctrl + c") to quit:\n', 'new');
+}, 500);
