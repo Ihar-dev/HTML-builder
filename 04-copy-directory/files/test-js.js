@@ -1,1 +1,3 @@
-console.log('Hello test');
+function copyDir (currentDir) {
+
+}
