@@ -12,7 +12,7 @@ fs.readdir(directory, (err, files) => {
       if (!stats.isDirectory()) {
         process.stdout.write(`${path.parse(filePath).name}`);
         process.stdout.write(` - ${path.parse(filePath).ext.substr(1)}`);
-        process.stdout.write(` - ${(stats.size * 0.001).toFixed(3)}kb\n`);
+        process.stdout.write(` - ${stats.size}bytes\n`);
       }
     })
   }
