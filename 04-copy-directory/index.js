@@ -5,7 +5,7 @@ const nextDir = path.join(__dirname, 'files-copy');
 const fsPromises = fs.promises;
 const makeDirectory = async () => {
   try {
-    fsPromises.mkdir(nextDir, {
+    await fsPromises.mkdir(nextDir, {
       recursive: true
     });
     clearDirectory();
@@ -28,8 +28,8 @@ const clearDirectory = async () => {
           }
         });
       }
+      copyDirectory();
     })
-    copyDirectory();
   } catch (err) {
     if (err) throw err;
   }
