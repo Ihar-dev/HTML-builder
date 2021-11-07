@@ -27,7 +27,7 @@ const clearDirectory = () => {
         }
       });
     }
-    copyDirectory();
+    setTimeout(copyDirectory);
   })
 }
 const copyDirectory = () => {
