@@ -13,44 +13,36 @@ const makeDirectory = async () => {
     if (err) throw err;
   }
 }
-const clearDirectory = async () => {
-  try {
-    fs.readdir(nextDir, (err, files) => {
-      if (err) throw err;
-      for (let file of files) {
-        let nextFilePath = path.join(nextDir, file);
-        fs.stat(nextFilePath, (err, stats) => {
-          if (err) throw err;
-          if (!stats.isDirectory()) {
-            fs.unlink(nextFilePath, err => {
-              if (err) throw err;
-            });
-          }
-        });
-      }
-      copyDirectory();
-    })
-  } catch (err) {
+const clearDirectory = () => {
+  fs.readdir(nextDir, (err, files) => {
     if (err) throw err;
-  }
+    for (let file of files) {
+      let nextFilePath = path.join(nextDir, file);
+      fs.stat(nextFilePath, (err, stats) => {
+        if (err) throw err;
+        if (!stats.isDirectory()) {
+          fs.unlink(nextFilePath, err => {
+            if (err) throw err;
+          });
+        }
+      });
+    }
+    copyDirectory();
+  })
 }
-const copyDirectory = async () => {
-  try {
-    fs.readdir(prevDir, (err, files) => {
-      if (err) throw err;
-      for (let file of files) {
-        let prevFilePath = path.join(prevDir, file);
-        let nextFilePath = path.join(nextDir, file);
-        fs.stat(prevFilePath, (err, stats) => {
-          if (err) throw err;
-          if (!stats.isDirectory()) {
-            fsPromises.copyFile(prevFilePath, nextFilePath);
-          }
-        })
-      }
-    })
-  } catch (err) {
+const copyDirectory = () => {
+  fs.readdir(prevDir, (err, files) => {
     if (err) throw err;
-  }
+    for (let file of files) {
+      let prevFilePath = path.join(prevDir, file);
+      let nextFilePath = path.join(nextDir, file);
+      fs.stat(prevFilePath, (err, stats) => {
+        if (err) throw err;
+        if (!stats.isDirectory()) {
+          fsPromises.copyFile(prevFilePath, nextFilePath);
+        }
+      })
+    }
+  })
 }
 makeDirectory();
