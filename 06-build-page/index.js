@@ -44,6 +44,7 @@ const readTemplateFile = () => {
     correctTemplate();
   });
 }
+const arr2 = [];
 const correctTemplate = () => {
   fs.readdir(dirComponents, (err, files) => {
     if (err) throw err;
@@ -60,10 +61,11 @@ const correctTemplate = () => {
               textData += Buffer.from(chunk);
             });
             myReadStream.on('close', () => {
-              let flags;
-              flags = 'g';
-              const reg = new RegExp(`{{${path.parse(filePath).name}}}`, flags);
-              template = template.replace(reg, textData);
+              const obj = {};
+              let name = `{{${path.parse(filePath).name}}}`;
+              obj.name = name;
+              obj.textData = textData;
+              arr2.push(obj);
               if (file === files[lastFileIndex]) makeIndexFile();
             });
           } else lastFileIndex--;
@@ -73,6 +75,12 @@ const correctTemplate = () => {
   })
 }
 const makeIndexFile = () => {
+  for (let i in arr2) {
+    let flags;
+    flags = 'g';
+    const reg = new RegExp(arr2[i].name, flags);
+    template = template.replace(reg, arr2[i].textData);
+  }
   fs.appendFile(indexFilePath, template, err => {
     if (err) throw err;
     mergeStyles();
