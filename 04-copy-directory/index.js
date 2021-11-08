@@ -19,13 +19,13 @@ const clearDirectory = () => {
     if (files.length) {
       let i = 0;
       for (let file of files) {
+        i++;
         let nextFilePath = path.join(nextDir, file);
         fs.stat(nextFilePath, (err, stats) => {
           if (err) throw err;
           if (!stats.isDirectory()) {
             fs.unlink(nextFilePath, err => {
               if (err) throw err;
-              i++;
               if (files.length === i) copyDirectory();
             });
           }
