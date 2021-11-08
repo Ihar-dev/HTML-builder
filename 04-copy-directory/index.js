@@ -16,18 +16,22 @@ const makeDirectory = async () => {
 const clearDirectory = () => {
   fs.readdir(nextDir, (err, files) => {
     if (err) throw err;
-    for (let file of files) {
-      let nextFilePath = path.join(nextDir, file);
-      fs.stat(nextFilePath, (err, stats) => {
-        if (err) throw err;
-        if (!stats.isDirectory()) {
-          fs.unlink(nextFilePath, err => {
-            if (err) throw err;
-          });
-        }
-      });
-    }
-    setTimeout(copyDirectory);
+    if (files.length) {
+      let i = 0;
+      for (let file of files) {
+        let nextFilePath = path.join(nextDir, file);
+        fs.stat(nextFilePath, (err, stats) => {
+          if (err) throw err;
+          if (!stats.isDirectory()) {
+            fs.unlink(nextFilePath, err => {
+              if (err) throw err;
+              i++;
+              if (files.length === i) copyDirectory();
+            });
+          }
+        });
+      }
+    } else copyDirectory();
   })
 }
 const copyDirectory = () => {
