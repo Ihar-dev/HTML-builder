@@ -55,11 +55,15 @@ const correctTemplate = () => {
           if (err) throw err;
           if (!stats.isDirectory() && path.parse(filePath).ext === '.html') {
             const myReadStream = fs.createReadStream(filePath);
+            let textData = '';
             myReadStream.on('data', chunk => {
-              const textData = '' + Buffer.from(chunk);
-              template = template.replace(`{{${path.parse(filePath).name}}}`, textData)
+              textData += Buffer.from(chunk);
             });
             myReadStream.on('close', () => {
+              let flags;
+              flags = 'g';
+              const reg = new RegExp(`{{${path.parse(filePath).name}}}`, flags);
+              template = template.replace(reg, textData);
               if (file === files[lastFileIndex]) makeIndexFile();
             });
           } else lastFileIndex--;
