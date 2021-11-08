@@ -50,7 +50,10 @@ const correctTemplate = () => {
     if (err) throw err;
     if (files.length) {
       let lastFileIndex = files.length - 1;
-      for (let file of files) {
+      let file = '';
+      let y = 0;
+      const addData = () => {
+        file = files[y];
         let filePath = path.join(dirComponents, file);
         fs.stat(filePath, (err, stats) => {
           if (err) throw err;
@@ -66,11 +69,18 @@ const correctTemplate = () => {
               obj.name = name;
               obj.textData = textData;
               arr2.push(obj);
+              y++;
               if (file === files[lastFileIndex]) makeIndexFile();
+              else addData();
             });
-          } else lastFileIndex--;
+          } else {
+            y++;
+            if (file === files[lastFileIndex]) makeIndexFile();
+            else addData();
+          }
         })
       }
+      addData();
     } else makeIndexFile();
   })
 }
