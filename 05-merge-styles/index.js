@@ -7,9 +7,8 @@ const copyStyles = () => {
   fs.readdir(prevDir, (err, files) => {
     if (err) throw err;
     if (files.length) {
-      let i = 0;
+      let lastFileIndex = files.length - 1;
       for (let file of files) {
-        i++;
         let prevFilePath = path.join(prevDir, file);
         fs.stat(prevFilePath, (err, stats) => {
           if (err) throw err;
@@ -18,9 +17,11 @@ const copyStyles = () => {
             myReadStream.on('data', chunk => {
               const textData = '' + Buffer.from(chunk);
               arr.push(textData);
-              if (files.length === i) makeBundle();
             });
-          }
+            myReadStream.on('close', () => {
+              if (file === files[lastFileIndex]) makeBundle();
+            });
+          } else lastFileIndex--;
         })
       }
     } else makeBundle();
