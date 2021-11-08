@@ -17,16 +17,14 @@ const clearDirectory = () => {
   fs.readdir(nextDir, (err, files) => {
     if (err) throw err;
     if (files.length) {
-      let i = 0;
       for (let file of files) {
-        i++;
         let nextFilePath = path.join(nextDir, file);
         fs.stat(nextFilePath, (err, stats) => {
           if (err) throw err;
           if (!stats.isDirectory()) {
             fs.unlink(nextFilePath, err => {
               if (err) throw err;
-              if (files.length === i) copyDirectory();
+              if (file === files[files.length - 1]) copyDirectory();
             });
           }
         });
