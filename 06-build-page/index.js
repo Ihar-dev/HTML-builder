@@ -20,15 +20,17 @@ const makeDirectory = async () => {
 const clearDirectory = () => {
   fs.readdir(dirPath, (err, files) => {
     if (err) throw err;
-    for (let file of files) {
-      let filePath = path.join(dirPath, file);
-      fs.rm(filePath, {
-        recursive: true
-      }, err => {
-        if (err) throw err;
-      })
-    }
-    setTimeout(readTemplateFile);
+    if (files.length) {
+      for (let file of files) {
+        let filePath = path.join(dirPath, file);
+        fs.rm(filePath, {
+          recursive: true
+        }, err => {
+          if (err) throw err;
+          if (file === files[files.length - 1]) readTemplateFile();
+        })
+      }
+    } else readTemplateFile();
   })
 }
 let template = '';
@@ -38,29 +40,32 @@ const readTemplateFile = () => {
     const textData = '' + Buffer.from(chunk);
     template += textData;
   });
-  setTimeout(() => {
+  myReadStream.on('close', () => {
     correctTemplate();
-  }, 200);
+  });
 }
 const correctTemplate = () => {
   fs.readdir(dirComponents, (err, files) => {
     if (err) throw err;
-    for (let file of files) {
-      let filePath = path.join(dirComponents, file);
-      fs.stat(filePath, (err, stats) => {
-        if (err) throw err;
-        if (!stats.isDirectory() && path.parse(filePath).ext === '.html') {
-          const myReadStream = fs.createReadStream(filePath);
-          myReadStream.on('data', chunk => {
-            const textData = '' + Buffer.from(chunk);
-            template = template.replace(`{{${path.parse(filePath).name}}}`, textData)
-          });
-        }
-      })
-    }
-    setTimeout(() => {
-      makeIndexFile();
-    }, 200);
+    if (files.length) {
+      let lastFileIndex = files.length - 1;
+      for (let file of files) {
+        let filePath = path.join(dirComponents, file);
+        fs.stat(filePath, (err, stats) => {
+          if (err) throw err;
+          if (!stats.isDirectory() && path.parse(filePath).ext === '.html') {
+            const myReadStream = fs.createReadStream(filePath);
+            myReadStream.on('data', chunk => {
+              const textData = '' + Buffer.from(chunk);
+              template = template.replace(`{{${path.parse(filePath).name}}}`, textData)
+            });
+            myReadStream.on('close', () => {
+              if (file === files[lastFileIndex]) makeIndexFile();
+            });
+          } else lastFileIndex--;
+        })
+      }
+    } else makeIndexFile();
   })
 }
 const makeIndexFile = () => {
@@ -76,20 +81,25 @@ const mergeStyles = () => {
   const copyStyles = () => {
     fs.readdir(prevDir, (err, files) => {
       if (err) throw err;
-      for (let file of files) {
-        let prevFilePath = path.join(prevDir, file);
-        fs.stat(prevFilePath, (err, stats) => {
-          if (err) throw err;
-          if (!stats.isDirectory() && path.parse(prevFilePath).ext === '.css') {
-            const myReadStream = fs.createReadStream(prevFilePath);
-            myReadStream.on('data', chunk => {
-              const textData = '' + Buffer.from(chunk);
-              arr.push(textData);
-            });
-          }
-        })
-      }
-      setTimeout(makeBundle);
+      if (files.length) {
+        let lastFileIndex = files.length - 1;
+        for (let file of files) {
+          let prevFilePath = path.join(prevDir, file);
+          fs.stat(prevFilePath, (err, stats) => {
+            if (err) throw err;
+            if (!stats.isDirectory() && path.parse(prevFilePath).ext === '.css') {
+              const myReadStream = fs.createReadStream(prevFilePath);
+              myReadStream.on('data', chunk => {
+                const textData = '' + Buffer.from(chunk);
+                arr.push(textData);
+              });
+              myReadStream.on('close', () => {
+                if (file === files[lastFileIndex]) makeBundle();
+              });
+            } else lastFileIndex--;
+          })
+        }
+      } else makeBundle();
     })
   }
   const makeBundle = () => {
